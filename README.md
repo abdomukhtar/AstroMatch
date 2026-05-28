@@ -74,15 +74,13 @@ AstroMatch/
 
 ## 🕹️ Difficulty Levels
 
-
-| Mode        | Goal         | Special Cards                              |
-|-------------|--------------|--------------------------------------------+
-| Easy        | Win at 5     | 1 Bomb 💣 + 1 Rocket 🚀                    |
-| Medium      | Win at 7     | 2 Bombs 💣 + 2 Rockets 🚀                  |
-| Hard        | Win at 10    | 3 Bombs 💣 + 3 Rockets 🚀                  |
-| Professional| Win at 12    | ~7% Bombs 💣 + ~4% Rockets 🚀              |
-| Master      | Win at 20    | ~10% Bombs 💣 + ~4% Rockets 🚀 ☠️          |
-
+| Mode         | Goal      | Special Cards                      |
+|---------------|------------|------------------------------------|
+| Easy          | Win at 5   | 1 Bomb 💣 + 1 Rocket 🚀            |
+| Medium        | Win at 7   | 2 Bombs 💣 + 2 Rockets 🚀          |
+| Hard          | Win at 10  | 3 Bombs 💣 + 3 Rockets 🚀          |
+| Professional  | Win at 12  | ~7% Bombs 💣 + ~4% Rockets 🚀      |
+| Master        | Win at 20  | ~10% Bombs 💣 + ~4% Rockets 🚀 ☠️ |
 
 ## 🧠 Gameplay Mechanics
 
@@ -178,5 +176,5 @@ See the [LICENSE](LICENSE.md) file for full details.
 
 ---
 
-## Friendly conversations, feedback, and collaboration are always welcome.                  
-## I would be happy to connect with developers from different countries and learn together. 
+### Friendly conversations, feedback, and collaboration are always welcome.                  
+### I would be happy to connect with developers from different countries and learn together. 
