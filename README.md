@@ -25,7 +25,7 @@ Players compete on the same device while customising themes, wallpapers, profile
 ---
 
 ## ✨ Features
-+------------------------+----------------------------------------------------------+
+
 |       Feature          |                  Details                                 |
 |------------------------|----------------------------------------------------------|
 | 🌌 Space theme         | Animated starfield with shooting stars                   |
@@ -36,7 +36,7 @@ Players compete on the same device while customising themes, wallpapers, profile
 | 🔊 Sound effects       | Synthesised via Web Audio API — no external audio files  |
 | 🚀 Rocket animation    | Cinematic rocket flies from card to opponent's score     |
 | 🧠 Smart shuffle       | Algorithm guarantees matching pairs are never adjacent   |
-+-----------------------------------------------------------------------------------+
+
 ---
 
 ## 📸 Screenshots
@@ -74,7 +74,7 @@ AstroMatch/
 
 ## 🕹️ Difficulty Levels
 
-+-------------+--------------+--------------------------------------------+
+
 | Mode        | Goal         | Special Cards                              |
 |-------------|--------------|--------------------------------------------+
 | Easy        | Win at 5     | 1 Bomb 💣 + 1 Rocket 🚀                    |
@@ -82,7 +82,7 @@ AstroMatch/
 | Hard        | Win at 10    | 3 Bombs 💣 + 3 Rockets 🚀                  |
 | Professional| Win at 12    | ~7% Bombs 💣 + ~4% Rockets 🚀              |
 | Master      | Win at 20    | ~10% Bombs 💣 + ~4% Rockets 🚀 ☠️          |
-+-------------+--------------+--------------------------------------------+
+
 
 ## 🧠 Gameplay Mechanics
 
@@ -178,7 +178,5 @@ See the [LICENSE](LICENSE.md) file for full details.
 
 ---
 
-# -----------------------------------------------------------------------------------------+
-# Friendly conversations, feedback, and collaboration are always welcome.                  |
-# I would be happy to connect with developers from different countries and learn together. |
-# -----------------------------------------------------------------------------------------+
+## Friendly conversations, feedback, and collaboration are always welcome.                  
+## I would be happy to connect with developers from different countries and learn together. 
