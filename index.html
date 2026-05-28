@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="assets/icons/icon-512.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="AstroMatch — A competitive 2-player space memory card game with special cards, cinematic animations, and synthesised sound effects. No install required — optional desktop integration available via install.sh.">
+<meta name="author" content="abdomukhtar">
+<title>AstroMatch — Space Memory Card Game</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#020814;
+font-family:Arial,sans-serif;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+color:white;
+}
+
+#game{
+width:min(1400px,98vw);
+height:min(96vh,920px);
+background:rgba(7,14,28,0.97);
+border-radius:34px;
+overflow:hidden;
+position:relative;
+border:1px solid rgba(255,255,255,0.08);
+}
+
+#bg{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+}
+
+.screen{
+position:relative;
+z-index:2;
+width:100%;
+height:100%;
+padding:16px;
+display:none;
+flex-direction:column;
+}
+
+.screen.active{
+display:flex;
+}
+
+.title{
+text-align:center;
+font-size:34px;
+letter-spacing:5px;
+color:#8ec9ff;
+margin-top:10px;
+}
+
+.subtitle{
+text-align:center;
+opacity:0.65;
+margin-top:8px;
+}
+
+.players{
+display:grid;
+grid-template-columns:1fr auto 1fr;
+gap:14px;
+margin-top:26px;
+align-items:center;
+}
+
+.playerBox{
+padding:18px;
+border-radius:24px;
+background:rgba(255,255,255,0.04);
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.blueBox{
+border:2px solid rgba(82,165,255,0.5);
+}
+
+.redBox{
+border:2px solid rgba(255,105,105,0.5);
+}
+
+.avatar{
+width:72px;
+height:72px;
+border-radius:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+margin:auto;
+font-size:24px;
+font-weight:bold;
+}
+
+.blueAvatar{
+background:#143f69;
+color:#8ec9ff;
+}
+
+.redAvatar{
+background:#5d1d1d;
+color:#ff9191;
+}
+
+input{
+border:none;
+outline:none;
+padding:14px;
+border-radius:16px;
+background:rgba(255,255,255,0.06);
+color:white;
+text-align:center;
+font-size:15px;
+}
+
+.modeTitle{
+text-align:center;
+margin-top:24px;
+opacity:0.7;
+}
+
+.modeButtons{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:12px;
+margin-top:12px;
+}
+
+.modeBtn{
+border:none;
+padding:16px;
+border-radius:22px;
+background:rgba(255,255,255,0.05);
+color:white;
+cursor:pointer;
+transition:0.25s;
+}
+
+.modeBtn.active{
+border:2px solid #ffbc58;
+box-shadow:0 0 18px rgba(255,188,88,0.5);
+}
+
+.startBtn{
+margin-top:auto;
+padding:18px;
+border:none;
+border-radius:22px;
+background:rgba(82,165,255,0.16);
+border:2px solid rgba(82,165,255,0.55);
+color:#8ec9ff;
+font-size:18px;
+cursor:pointer;
+}
+
+.top{
+display:flex;
+justify-content:center;
+align-items:center;
+margin-bottom:12px;
+gap:140px;
+}
+
+.score{
+display:flex;
+align-items:center;
+gap:10px;
+padding:10px 14px;
+background:rgba(255,255,255,0.05);
+border-radius:20px;
+min-width:180px;
+max-width:180px;
+transition:0.3s;
+}
+
+.blueTurn{
+border:2px solid rgba(82,165,255,0.9);
+box-shadow:0 0 20px rgba(82,165,255,0.7);
+}
+
+.redTurn{
+border:2px solid rgba(255,105,105,0.9);
+box-shadow:0 0 20px rgba(255,105,105,0.7);
+}
+
+.scoreNum{
+font-size:32px;
+font-weight:bold;
+}
+
+.scoreName{
+font-size:15px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+max-width:90px;
+}
+
+.middle{
+text-align:center;
+}
+
+.goal{
+font-size:28px;
+font-weight:bold;
+color:#ffbc58;
+}
+
+#turnBox{
+height:48px;
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:20px;
+font-size:18px;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.turnBlue{
+background:rgba(82,165,255,0.12);
+color:#8ec9ff;
+box-shadow:0 0 18px rgba(82,165,255,0.5);
+}
+
+.turnRed{
+background:rgba(255,105,105,0.12);
+color:#ff9191;
+box-shadow:0 0 18px rgba(255,105,105,0.5);
+}
+
+.actions{
+display:flex;
+justify-content:center;
+gap:10px;
+margin-bottom:10px;
+}
+
+.btn{
+padding:12px 20px;
+border:none;
+border-radius:18px;
+background:rgba(255,255,255,0.08);
+color:white;
+cursor:pointer;
+}
+
+#board{
+flex:1;
+display:grid;
+grid-template-columns:repeat(6,82px);
+justify-content:center;
+align-content:center;
+gap:10px;
+}
+
+.card{
+width:82px;
+height:82px;
+perspective:1000px;
+cursor:pointer;
+}
+
+.inner{
+width:100%;
+height:100%;
+position:relative;
+transform-style:preserve-3d;
+transition:0.45s;
+}
+
+.card.flip .inner{
+transform:rotateY(180deg);
+}
+
+.face{
+position:absolute;
+inset:0;
+border-radius:18px;
+display:flex;
+justify-content:center;
+align-items:center;
+backface-visibility:hidden;
+font-weight:bold;
+}
+
+.back{
+background:linear-gradient(135deg,#1d45ff,#12208d);
+border:2px solid rgba(255,255,255,0.16);
+box-shadow:0 8px 16px rgba(0,0,0,0.35);
+}
+
+.front{
+transform:rotateY(180deg);
+background:#f5f2e9;
+color:#2644d7;
+font-size:38px;
+border:2px solid rgba(0,0,0,0.08);
+}
+
+.card.matched .front{
+background:#e9fff0;
+border:2px solid rgba(96,255,150,0.9);
+box-shadow:0 0 22px rgba(96,255,150,0.65);
+color:#1b8b50;
+}
+
+
+.card.bomb .front{
+background:#3b0f0f;
+color:#ff6666;
+box-shadow:0 0 22px rgba(255,80,80,0.7);
+animation:boom .5s ease;
+}
+
+.card.rocket .front{
+background:#0b233b;
+color:#6bc5ff;
+box-shadow:0 0 22px rgba(90,190,255,0.7);
+animation:rocket .5s ease;
+}
+
+@keyframes boom{
+0%{transform:rotateY(180deg) scale(1);}
+50%{transform:rotateY(180deg) scale(1.15);}
+100%{transform:rotateY(180deg) scale(1);}
+}
+
+@keyframes rocket{
+0%{transform:rotateY(180deg) translateY(0);}
+50%{transform:rotateY(180deg) translateY(-10px);}
+100%{transform:rotateY(180deg) translateY(0);}
+}
+
+.win{
+justify-content:center;
+align-items:center;
+text-align:center;
+gap:20px;
+}
+
+.trophy{
+width:120px;
+height:120px;
+border-radius:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:40px;
+font-weight:bold;
+}
+
+.winText{
+font-size:42px;
+font-weight:bold;
+}
+
+.final{
+display:flex;
+gap:60px;
+font-size:24px;
+}
+
+
+.hitBlack{
+background:black !important;
+transition:0.2s;
+}
+
+#fx{
+position:absolute;
+inset:0;
+pointer-events:none;
+overflow:hidden;
+z-index:50;
+}
+
+.effect{
+position:absolute;
+font-size:40px;
+transition:all 1s linear;
+}
+
+.explode{
+animation:explode .6s ease;
+}
+
+@keyframes explode{
+0%{transform:scale(1);}
+50%{transform:scale(1.6);}
+100%{transform:scale(1);}
+}
+
+@media(max-width:900px){
+.card{
+width:68px;
+height:68px;
+}
+
+#board{
+grid-template-columns:repeat(auto-fit,minmax(68px,68px));
+}
+}
+
+#wpBtn{
+position:absolute;
+top:16px;
+left:16px;
+z-index:10;
+padding:9px 16px;
+border:none;
+border-radius:14px;
+background:rgba(255,255,255,0.07);
+border:1.5px solid rgba(255,255,255,0.15);
+color:rgba(255,255,255,0.75);
+font-size:13px;
+cursor:pointer;
+display:flex;
+align-items:center;
+gap:7px;
+transition:0.2s;
+backdrop-filter:blur(6px);
+}
+
+#wpBtn:hover{
+background:rgba(255,255,255,0.13);
+color:white;
+border-color:rgba(255,255,255,0.3);
+}
+
+#wpModal{
+position:absolute;
+inset:0;
+z-index:100;
+background:rgba(2,8,20,0.88);
+backdrop-filter:blur(10px);
+display:none;
+flex-direction:column;
+align-items:center;
+gap:18px;
+padding:28px 24px 40px;
+overflow-y:auto;
+overflow-x:hidden;
+}
+
+#wpModal.open{
+display:flex;
+}
+
+.wpTitle{
+font-size:22px;
+letter-spacing:4px;
+color:#8ec9ff;
+}
+
+.wpSection{
+font-size:12px;
+letter-spacing:3px;
+opacity:0.45;
+text-transform:uppercase;
+align-self:flex-start;
+margin-left:4px;
+}
+
+.wpGrid{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:12px;
+width:100%;
+max-width:620px;
+}
+
+.wpOpt{
+height:80px;
+border-radius:18px;
+cursor:pointer;
+border:2.5px solid transparent;
+transition:0.2s;
+display:flex;
+align-items:flex-end;
+justify-content:center;
+padding-bottom:8px;
+font-size:11px;
+letter-spacing:1px;
+opacity:0.75;
+}
+
+.wpOpt:hover{
+opacity:1;
+transform:scale(1.04);
+}
+
+.wpOpt.chosen{
+border-color:#ffbc58;
+box-shadow:0 0 18px rgba(255,188,88,0.45);
+opacity:1;
+}
+
+/* Profile grid - elegant tile style */
+.profileGrid{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:10px;
+width:100%;
+max-width:620px;
+}
+
+.profileTile{
+border-radius:16px;
+cursor:pointer;
+border:2.5px solid rgba(255,255,255,0.06);
+transition:all 0.2s;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+padding:14px 6px 10px;
+gap:6px;
+opacity:0.82;
+position:relative;
+}
+
+.profileTile:hover{
+opacity:1;
+transform:scale(1.05);
+border-color:rgba(255,255,255,0.2);
+}
+
+.profileTile.chosen{
+border-color:#ffbc58;
+box-shadow:0 0 20px rgba(255,188,88,0.5), inset 0 0 12px rgba(255,188,88,0.06);
+opacity:1;
+}
+
+.profileIcon{
+font-size:30px;
+line-height:1;
+}
+
+.profileName{
+font-size:10px;
+letter-spacing:1.5px;
+color:rgba(255,255,255,0.7);
+text-transform:uppercase;
+}
+
+.thGrid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:12px;
+width:100%;
+max-width:620px;
+}
+
+.thOpt{
+height:64px;
+border-radius:18px;
+cursor:pointer;
+border:2.5px solid transparent;
+transition:0.2s;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+font-size:12px;
+letter-spacing:1px;
+opacity:0.75;
+}
+
+.thOpt:hover{
+opacity:1;
+transform:scale(1.04);
+}
+
+.thOpt.chosen{
+border-color:#ffbc58;
+box-shadow:0 0 18px rgba(255,188,88,0.4);
+opacity:1;
+}
+
+.thDot{
+width:18px;
+height:18px;
+border-radius:50%;
+}
+
+.wpClose{
+padding:11px 32px;
+border:none;
+border-radius:16px;
+background:rgba(255,255,255,0.08);
+border:1.5px solid rgba(255,255,255,0.18);
+color:white;
+font-size:14px;
+cursor:pointer;
+letter-spacing:2px;
+transition:0.2s;
+}
+
+.wpClose:hover{
+background:rgba(255,255,255,0.14);
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<canvas id="bg"></canvas>
+<div id="fx"></div>
+
+<!-- Wallpaper & Theme Button -->
+<button id="wpBtn" onclick="sfxBtn();document.getElementById('wpModal').classList.add('open')">
+  &#9728; Wallpaper &amp; Theme
+</button>
+
+<!-- Wallpaper & Theme Modal -->
+<div id="wpModal">
+  <div class="wpTitle">WALLPAPER &amp; THEME</div>
+
+  <div class="wpSection">Background</div>
+  <div class="wpGrid">
+    <div class="wpOpt chosen" data-wp="space" style="background:linear-gradient(160deg,#020814,#071230)">Space</div>
+    <div class="wpOpt" data-wp="nebula" style="background:linear-gradient(160deg,#100520,#2a0845)">Nebula</div>
+    <div class="wpOpt" data-wp="mars" style="background:linear-gradient(160deg,#1a0800,#3b1200)">Mars</div>
+    <div class="wpOpt" data-wp="ocean" style="background:linear-gradient(160deg,#001520,#00334d)">Ocean</div>
+    <div class="wpOpt" data-wp="void" style="background:linear-gradient(160deg,#000,#0a0a0a)">Void</div>
+  </div>
+
+  <div class="wpSection">Card Theme</div>
+  <div class="thGrid">
+    <div class="thOpt chosen" data-th="default" style="background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.1)">
+      <div class="thDot" style="background:#1d45ff"></div>Default
+    </div>
+    <div class="thOpt" data-th="gold" style="background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.1)">
+      <div class="thDot" style="background:#c8960c"></div>Gold
+    </div>
+    <div class="thOpt" data-th="rose" style="background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.1)">
+      <div class="thDot" style="background:#c2185b"></div>Rose
+    </div>
+    <div class="thOpt" data-th="cyber" style="background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.1)">
+      <div class="thDot" style="background:#00e5ff"></div>Cyber
+    </div>
+  </div>
+
+  <div class="wpSection">🔵 P1 Profile</div>
+  <div class="profileGrid">
+    <div class="profileTile chosen" data-p1="gamer" style="background:linear-gradient(145deg,#1a3a52,#0d1f2d)">
+      <div class="profileIcon">🎮</div><div class="profileName">Gamer</div>
+    </div>
+    <div class="profileTile" data-p1="champion" style="background:linear-gradient(145deg,#4a3700,#2a1f00)">
+      <div class="profileIcon">🏆</div><div class="profileName">Champion</div>
+    </div>
+    <div class="profileTile" data-p1="legend" style="background:linear-gradient(145deg,#3a1a5a,#2a0a3a)">
+      <div class="profileIcon">🌟</div><div class="profileName">Legend</div>
+    </div>
+    <div class="profileTile" data-p1="thunder" style="background:linear-gradient(145deg,#5a4a00,#3a2a00)">
+      <div class="profileIcon">⚡</div><div class="profileName">Thunder</div>
+    </div>
+    <div class="profileTile" data-p1="king" style="background:linear-gradient(145deg,#5a4a1a,#3a2a0a)">
+      <div class="profileIcon">👑</div><div class="profileName">King</div>
+    </div>
+    <div class="profileTile" data-p1="phoenix" style="background:linear-gradient(145deg,#6a1a1a,#3a0a0a)">
+      <div class="profileIcon">🔥</div><div class="profileName">Phoenix</div>
+    </div>
+    <div class="profileTile" data-p1="diamond" style="background:linear-gradient(145deg,#3a1a5a,#1a0a3a)">
+      <div class="profileIcon">💎</div><div class="profileName">Diamond</div>
+    </div>
+    <div class="profileTile" data-p1="garden" style="background:linear-gradient(145deg,#4a2a3a,#2a1020)">
+      <div class="profileIcon">🌺</div><div class="profileName">Garden</div>
+    </div>
+    <div class="profileTile" data-p1="blizzard" style="background:linear-gradient(145deg,#1a3a5a,#0a1a3a)">
+      <div class="profileIcon">❄️</div><div class="profileName">Blizzard</div>
+    </div>
+    <div class="profileTile" data-p1="cherry" style="background:linear-gradient(145deg,#5a2040,#2a1020)">
+      <div class="profileIcon">🌸</div><div class="profileName">Cherry</div>
+    </div>
+  </div>
+
+  <div class="wpSection">🔴 P2 Profile</div>
+  <div class="profileGrid">
+    <div class="profileTile chosen" data-p2="gamer" style="background:linear-gradient(145deg,#1a3a52,#0d1f2d)">
+      <div class="profileIcon">🎮</div><div class="profileName">Gamer</div>
+    </div>
+    <div class="profileTile" data-p2="champion" style="background:linear-gradient(145deg,#4a3700,#2a1f00)">
+      <div class="profileIcon">🏆</div><div class="profileName">Champion</div>
+    </div>
+    <div class="profileTile" data-p2="legend" style="background:linear-gradient(145deg,#3a1a5a,#2a0a3a)">
+      <div class="profileIcon">🌟</div><div class="profileName">Legend</div>
+    </div>
+    <div class="profileTile" data-p2="thunder" style="background:linear-gradient(145deg,#5a4a00,#3a2a00)">
+      <div class="profileIcon">⚡</div><div class="profileName">Thunder</div>
+    </div>
+    <div class="profileTile" data-p2="king" style="background:linear-gradient(145deg,#5a4a1a,#3a2a0a)">
+      <div class="profileIcon">👑</div><div class="profileName">King</div>
+    </div>
+    <div class="profileTile" data-p2="phoenix" style="background:linear-gradient(145deg,#6a1a1a,#3a0a0a)">
+      <div class="profileIcon">🔥</div><div class="profileName">Phoenix</div>
+    </div>
+    <div class="profileTile" data-p2="diamond" style="background:linear-gradient(145deg,#3a1a5a,#1a0a3a)">
+      <div class="profileIcon">💎</div><div class="profileName">Diamond</div>
+    </div>
+    <div class="profileTile" data-p2="garden" style="background:linear-gradient(145deg,#4a2a3a,#2a1020)">
+      <div class="profileIcon">🌺</div><div class="profileName">Garden</div>
+    </div>
+    <div class="profileTile" data-p2="blizzard" style="background:linear-gradient(145deg,#1a3a5a,#0a1a3a)">
+      <div class="profileIcon">❄️</div><div class="profileName">Blizzard</div>
+    </div>
+    <div class="profileTile" data-p2="cherry" style="background:linear-gradient(145deg,#5a2040,#2a1020)">
+      <div class="profileIcon">🌸</div><div class="profileName">Cherry</div>
+    </div>
+  </div>
+
+  <button class="wpClose" onclick="sfxBtn();document.getElementById('wpModal').classList.remove('open')">DONE</button>
+</div>
+
+<div id="menu" class="screen active">
+
+<div class="title">AstroMatch</div>
+<div class="subtitle">Space Memory Card Game</div>
+
+<div class="players">
+
+<div class="playerBox blueBox">
+<div>PLAYER BLUE</div>
+<div class="avatar blueAvatar" id="p1Avatar">P1</div>
+<input id="p1" placeholder="Blue Player Name">
+</div>
+
+<div style="font-size:26px;color:#ffbc58;">VS</div>
+
+<div class="playerBox redBox">
+<div>PLAYER RED</div>
+<div class="avatar redAvatar" id="p2Avatar">P2</div>
+<input id="p2" placeholder="Red Player Name">
+</div>
+
+</div>
+
+<div class="modeTitle">Difficulty</div>
+
+
+<div class="modeButtons">
+<button class="modeBtn active" data-mode="easy">Easy<br>Win at 5</button>
+<button class="modeBtn" data-mode="medium">Medium<br>Win at 7</button>
+<button class="modeBtn" data-mode="hard">Hard<br>Win at 10</button>
+<button class="modeBtn" data-mode="professional">Professional<br>Win at 12 💣</button>
+<button class="modeBtn" data-mode="master">Master<br>Win at 20 💀</button>
+</div>
+
+<button id="start" class="startBtn">Start Game</button>
+
+</div>
+
+<div id="play" class="screen">
+
+<div class="top">
+
+<div id="blueScoreBox" class="score blueTurn">
+<div class="scoreNum" style="color:#8ec9ff" id="blueScore">0</div>
+<div class="scoreName" id="blueName">Blue</div>
+</div>
+
+<div class="middle">
+<div style="opacity:0.6;font-size:12px;">WIN AT</div>
+<div id="goal" class="goal">5</div>
+</div>
+
+<div id="redScoreBox" class="score">
+<div class="scoreName" id="redName">Red</div>
+<div class="scoreNum" style="color:#ff9191" id="redScore">0</div>
+</div>
+
+</div>
+
+<div id="turnBox" class="turnBlue"></div>
+
+<div class="actions">
+<button id="shuffle" class="btn">Shuffle Cards</button>
+<button id="home" class="btn">Back To Main Menu</button>
+</div>
+
+<div id="board"></div>
+
+</div>
+
+<div id="win" class="screen win">
+
+<div id="trophy" class="trophy"></div>
+
+<div id="winnerText" class="winText"></div>
+
+<div class="final">
+<div id="f1"></div>
+<div id="f2"></div>
+</div>
+
+<div class="actions">
+<button id="again" class="btn">Play Again</button>
+<button id="backMenu" class="btn">Back To Main Menu</button>
+</div>
+
+</div>
+
+</div>
+
+<script>
+const bg=document.getElementById("bg");
+const ctx=bg.getContext("2d");
+
+function resize(){
+bg.width=game.clientWidth;
+bg.height=game.clientHeight;
+}
+resize();
+window.addEventListener("resize",resize);
+
+const stars=Array.from({length:160},()=>({
+x:Math.random()*2000,
+y:Math.random()*2000,
+r:Math.random()*2
+}));
+
+function space(){
+ctx.clearRect(0,0,bg.width,bg.height);
+
+stars.forEach(s=>{
+ctx.beginPath();
+ctx.arc(s.x%bg.width,s.y%bg.height,s.r,0,Math.PI*2);
+ctx.fillStyle="white";
+ctx.globalAlpha=Math.random();
+ctx.fill();
+s.y+=0.12;
+});
+
+requestAnimationFrame(space);
+}
+space();
+
+const screens=document.querySelectorAll(".screen");
+
+function show(id){
+screens.forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+
+let mode="easy";
+
+document.querySelectorAll(".modeBtn").forEach(btn=>{
+btn.onclick=()=>{
+sfxSelect();
+document.querySelectorAll(".modeBtn").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
+mode=btn.dataset.mode;
+};
+});
+
+const MODES={
+  easy:        {pairs:8,  goal:5,  special:2,  cols:6, bombPercent:0,  rocketPercent:0 },
+  medium:      {pairs:12, goal:7,  special:4,  cols:7, bombPercent:0,  rocketPercent:0 },
+  hard:        {pairs:18, goal:10, special:6,  cols:6, bombPercent:0,  rocketPercent:0 },
+  professional:{pairs:24, goal:12, special:0,  cols:6, bombPercent:10, rocketPercent:5 },
+  master:      {pairs:30, goal:20, special:0,  cols:10,bombPercent:13, rocketPercent:5 }
+};
+
+let goal=5;
+let p1="Blue";
+let p2="Red";
+let turn=1;
+let s1=0;
+let s2=0;
+let cards=[];
+let flipped=[];
+let lock=false;
+
+const board=document.getElementById("board");
+
+document.getElementById("start").onclick=()=>{
+sfxStart();
+p1=document.getElementById("p1").value.trim()||"Blue";
+p2=document.getElementById("p2").value.trim()||"Red";
+
+document.getElementById("blueName").textContent=p1;
+document.getElementById("redName").textContent=p2;
+
+startGame();
+show("play");
+};
+
+function uniqueRandoms(count,min,max){
+let nums=[];
+while(nums.length<count){
+let n=Math.floor(Math.random()*(max-min+1))+min;
+if(!nums.includes(n)){
+nums.push(n);
+}
+}
+return nums;
+}
+
+function startGame(){
+
+goal=MODES[mode].goal;
+document.getElementById("goal").textContent=goal;
+
+s1=0;
+s2=0;
+turn=1;
+flipped=[];
+lock=false;
+
+createBoard();
+updateUI();
+}
+
+function createBoard(){
+
+const config=MODES[mode];
+const pairCount=config.pairs;
+
+board.style.gridTemplateColumns=`repeat(${config.cols},82px)`;
+
+const randoms=uniqueRandoms(pairCount,10,99);
+
+// ── Smart spread shuffle ──────────────────────────────────────
+// Guarantees matching pairs are never adjacent or close together
+function spreadShuffle(items){
+  const total = items.length;
+  const cols  = config.cols;
+  let best = null, bestMinDist = -1;
+
+  // Try 120 random arrangements, keep the one with best spread
+  for(let attempt = 0; attempt < 120; attempt++){
+    // Fisher-Yates shuffle
+    const arr = [...items];
+    for(let i = arr.length-1; i > 0; i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    // Measure minimum distance between each pair of matching cards
+    const pos = {};
+    let minDist = Infinity;
+    for(let i = 0; i < arr.length; i++){
+      const key = arr[i].type==="number"? arr[i].value : arr[i].value+"_"+i;
+      if(arr[i].type!=="number"){ continue; } // skip specials
+      const v = arr[i].value;
+      if(pos[v] !== undefined){
+        const r1=Math.floor(pos[v]/cols), c1=pos[v]%cols;
+        const r2=Math.floor(i/cols),     c2=i%cols;
+        const d = Math.abs(r1-r2) + Math.abs(c1-c2); // Manhattan distance
+        if(d < minDist) minDist = d;
+      } else {
+        pos[v] = i;
+      }
+    }
+    if(minDist > bestMinDist){ bestMinDist = minDist; best = arr; }
+    // Early exit if pairs are well spread (distance > 3)
+    if(bestMinDist > 3) break;
+  }
+  return best;
+}
+
+// Build number pairs
+let nums=[];
+randoms.forEach(n=>{
+  nums.push({type:"number",value:n});
+  nums.push({type:"number",value:n});
+});
+
+let totalCards=nums.length;
+
+// Add specials AFTER number pairs are placed
+let specials=[];
+
+if(config.bombPercent>0){
+  let bombCount  = Math.max(2, Math.floor(totalCards*(config.bombPercent/100)));
+  let rocketCount= Math.max(1, Math.floor(totalCards*((config.rocketPercent||5)/100)));
+  for(let i=0;i<bombCount;i++)   specials.push({type:"bomb",  value:"💣"});
+  for(let i=0;i<rocketCount;i++) specials.push({type:"rocket",value:"🚀"});
+}else{
+  for(let i=0;i<config.special/2;i++){
+    specials.push({type:"bomb",  value:"💣"});
+    specials.push({type:"rocket",value:"🚀"});
+  }
+}
+
+// Spread-shuffle number pairs first, then scatter specials randomly
+nums = spreadShuffle(nums);
+
+// Insert specials at random non-adjacent positions
+specials.forEach(sp=>{
+  const idx = Math.floor(Math.random()*(nums.length+1));
+  nums.splice(idx,0,sp);
+});
+
+cards=nums.map((item,i)=>({
+id:i,
+type:item.type,
+num:item.value,
+flip:false,
+match:false,
+used:false
+}));
+
+board.innerHTML="";
+
+cards.forEach(card=>{
+
+const el=document.createElement("div");
+el.className="card";
+el.dataset.id=card.id;
+
+el.innerHTML=`
+<div class="inner">
+<div class="face back"></div>
+<div class="face front">${card.num}</div>
+</div>
+`;
+
+el.onclick=()=>clickCard(card.id);
+
+board.appendChild(el);
+
+});
+}
+
+document.getElementById("shuffle").onclick=()=>{
+if(lock)return;
+sfxShuffle();
+flipped=[];
+createBoard();
+};
+
+document.getElementById("home").onclick=()=>{sfxBtn();show("menu");};
+document.getElementById("backMenu").onclick=()=>{sfxBtn();show("menu");};
+
+
+const fx=document.getElementById("fx");
+
+function blackHit(targetId){
+const el=document.getElementById(targetId);
+el.classList.add("hitBlack");
+setTimeout(()=>{
+el.classList.remove("hitBlack");
+},2000);
+}
+
+function rocketAttack(targetId, sourceEl){
+sfxRocket();
+
+const gameEl = document.getElementById("game");
+const gameRect = gameEl.getBoundingClientRect();
+const targetEl = document.getElementById(targetId);
+const targetRect = targetEl.getBoundingClientRect();
+
+// Source: center of clicked card, fallback to center of board
+let startX, startY;
+if(sourceEl){
+  const sr = sourceEl.getBoundingClientRect();
+  startX = sr.left - gameRect.left + sr.width/2;
+  startY = sr.top  - gameRect.top  + sr.height/2;
+} else {
+  startX = gameRect.width/2;
+  startY = gameRect.height*0.55;
+}
+
+const endX = targetRect.left - gameRect.left + targetRect.width/2;
+const endY = targetRect.top  - gameRect.top  + targetRect.height/2;
+
+// Angle for rotation
+const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI + 90;
+
+// Create rocket element
+const r = document.createElement("div");
+r.style.cssText = `
+  position:absolute;
+  font-size:36px;
+  left:${startX}px;
+  top:${startY}px;
+  transform:translate(-50%,-50%) rotate(${angle}deg);
+  z-index:200;
+  pointer-events:none;
+  filter:drop-shadow(0 0 10px #6bc5ff) drop-shadow(0 0 20px #3b82f6);
+`;
+r.textContent = "🚀";
+fx.appendChild(r);
+
+// Trail particles
+const trailTimer = setInterval(()=>{
+  const cx = parseFloat(r.style.left);
+  const cy = parseFloat(r.style.top);
+  const colors = ["#ff8c00","#ff4500","#ffcc00","#fff","#6bc5ff"];
+  const t = document.createElement("div");
+  const sz = 4 + Math.random()*8;
+  t.style.cssText = `
+    position:absolute;
+    width:${sz}px;
+    height:${sz}px;
+    border-radius:50%;
+    background:${colors[Math.floor(Math.random()*colors.length)]};
+    left:${cx}px;
+    top:${cy}px;
+    transform:translate(-50%,-50%);
+    z-index:198;
+    pointer-events:none;
+    opacity:0.9;
+  `;
+  fx.appendChild(t);
+  t.animate([{opacity:0.9,transform:"translate(-50%,-50%) scale(1)"},{opacity:0,transform:"translate(-50%,-50%) scale(0.1)"}],
+    {duration:350,easing:"ease-out"}).onfinish = ()=>t.remove();
+}, 25);
+
+// Fly animation
+const duration = 550;
+const t0 = performance.now();
+
+function fly(now){
+  const p = Math.min((now - t0) / duration, 1);
+  const ease = p<0.5 ? 2*p*p : -1+(4-2*p)*p;
+  const cx = startX + (endX-startX)*ease;
+  const cy = startY + (endY-startY)*ease;
+  r.style.left = cx+"px";
+  r.style.top  = cy+"px";
+  if(p < 1){ requestAnimationFrame(fly); }
+  else {
+    clearInterval(trailTimer);
+    r.remove();
+    rocketImpact(endX, endY, gameRect);
+    blackHit(targetId);
+  }
+}
+requestAnimationFrame(fly);
+}
+
+function rocketImpact(x, y, gameRect){
+  // Flash ring
+  const flash = document.createElement("div");
+  flash.style.cssText = `
+    position:absolute;
+    width:20px; height:20px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(107,197,255,0.95),rgba(59,130,246,0.6),transparent);
+    left:${x}px; top:${y}px;
+    transform:translate(-50%,-50%) scale(0);
+    z-index:202; pointer-events:none;
+  `;
+  fx.appendChild(flash);
+  flash.animate(
+    [{transform:"translate(-50%,-50%) scale(0)",opacity:1},
+     {transform:"translate(-50%,-50%) scale(6)",opacity:0}],
+    {duration:450,easing:"ease-out"}
+  ).onfinish = ()=>flash.remove();
+
+  // Shockwave ring
+  const ring = document.createElement("div");
+  ring.style.cssText = `
+    position:absolute;
+    width:16px; height:16px;
+    border-radius:50%;
+    border:3px solid rgba(107,197,255,0.9);
+    left:${x}px; top:${y}px;
+    transform:translate(-50%,-50%) scale(0);
+    z-index:202; pointer-events:none;
+  `;
+  fx.appendChild(ring);
+  ring.animate(
+    [{transform:"translate(-50%,-50%) scale(0)",opacity:1},
+     {transform:"translate(-50%,-50%) scale(8)",opacity:0}],
+    {duration:500,easing:"ease-out",delay:50}
+  ).onfinish = ()=>ring.remove();
+
+  // Sparks
+  const sparkColors = ["#6bc5ff","#fff","#ffcc00","#3b82f6","#93c5fd"];
+  for(let i=0; i<18; i++){
+    const ang = (i/18)*Math.PI*2;
+    const spd = 50 + Math.random()*80;
+    const sp = document.createElement("div");
+    const sz = 3+Math.random()*5;
+    sp.style.cssText = `
+      position:absolute;
+      width:${sz}px; height:${sz}px;
+      border-radius:50%;
+      background:${sparkColors[Math.floor(Math.random()*sparkColors.length)]};
+      left:${x}px; top:${y}px;
+      transform:translate(-50%,-50%);
+      z-index:201; pointer-events:none;
+      box-shadow:0 0 6px currentColor;
+    `;
+    fx.appendChild(sp);
+    sp.animate(
+      [{left:x+"px",top:y+"px",opacity:1},
+       {left:(x+Math.cos(ang)*spd)+"px",top:(y+Math.sin(ang)*spd)+"px",opacity:0}],
+      {duration:500+Math.random()*200,easing:"ease-out"}
+    ).onfinish = ()=>sp.remove();
+  }
+
+  // 💥 emoji pop
+  const boom = document.createElement("div");
+  boom.style.cssText = `
+    position:absolute;
+    font-size:48px;
+    left:${x}px; top:${y}px;
+    transform:translate(-50%,-50%) scale(0);
+    z-index:203; pointer-events:none;
+  `;
+  boom.textContent="💥";
+  fx.appendChild(boom);
+  boom.animate(
+    [{transform:"translate(-50%,-50%) scale(0)",opacity:1},
+     {transform:"translate(-50%,-50%) scale(1.6)",opacity:1,offset:0.4},
+     {transform:"translate(-50%,-50%) scale(1.2)",opacity:0}],
+    {duration:600,easing:"ease-out"}
+  ).onfinish = ()=>boom.remove();
+}
+
+function bombAttack(targetId){
+sfxBomb();
+
+const gameEl=document.getElementById("game");
+const gameRect=gameEl.getBoundingClientRect();
+const target=document.getElementById(targetId);
+const rect=target.getBoundingClientRect();
+
+const b=document.createElement("div");
+b.className="effect explode";
+b.textContent="💥";
+b.style.left=(rect.left - gameRect.left + rect.width/2)+"px";
+b.style.top=(rect.top  - gameRect.top  + rect.height/2)+"px";
+
+fx.appendChild(b);
+
+blackHit(targetId);
+
+setTimeout(()=>{
+b.remove();
+},2000);
+}
+
+function clickCard(id){
+
+if(lock)return;
+
+const card=cards[id];
+
+if(card.flip||card.match||card.used)return;
+
+sfxCardFlip();
+card.flip=true;
+sync(id);
+
+if(card.type==="bomb"){
+
+lock=true;
+
+setTimeout(()=>{
+
+if(turn===1){
+
+bombAttack("blueScoreBox");
+
+setTimeout(()=>{
+s1=Math.max(0,s1-2);
+updateUI();
+},2000);
+
+}else{
+
+bombAttack("redScoreBox");
+
+setTimeout(()=>{
+s2=Math.max(0,s2-2);
+updateUI();
+},2000);
+
+}
+
+card.used=true;
+
+turn=turn===1?2:1;
+sync(id);
+
+lock=false;
+
+},700);
+
+return;
+}
+
+if(card.type==="rocket"){
+
+lock=true;
+const srcEl=document.querySelector(`[data-id="${id}"]`);
+
+setTimeout(()=>{
+
+if(turn===1){
+
+rocketAttack("redScoreBox",srcEl);
+
+setTimeout(()=>{
+s2=Math.max(0,s2-1);
+updateUI();
+},2000);
+
+}else{
+
+rocketAttack("blueScoreBox",srcEl);
+
+setTimeout(()=>{
+s1=Math.max(0,s1-1);
+updateUI();
+},2000);
+
+}
+
+card.used=true;
+sync(id);
+
+lock=false;
+
+},700);
+
+return;
+}
+
+flipped.push(id);
+
+if(flipped.length===2){
+
+lock=true;
+
+const a=cards[flipped[0]];
+const b=cards[flipped[1]];
+
+if(a.num===b.num){
+
+setTimeout(()=>{
+
+a.match=true;
+b.match=true;
+
+sync(a.id);
+sync(b.id);
+
+sfxMatch();
+
+if(turn===1){
+s1++;
+}else{
+s2++;
+}
+
+updateUI();
+
+flipped=[];
+lock=false;
+
+if(s1>=goal||s2>=goal){
+setTimeout(showWinner,500);
+}
+
+},450);
+
+}else{
+
+setTimeout(()=>{
+
+a.flip=false;
+b.flip=false;
+
+sync(a.id);
+sync(b.id);
+
+sfxMismatch();
+
+// Master mode: wrong match costs 1 point
+if(mode==="master"){
+  if(turn===1 && s1>0){ s1--; }
+  else if(turn===2 && s2>0){ s2--; }
+  updateUI();
+}
+
+turn=turn===1?2:1;
+
+updateUI();
+
+flipped=[];
+lock=false;
+
+},850);
+}
+}
+}
+
+function sync(id){
+const card=cards[id];
+const el=document.querySelector(`[data-id="${id}"]`);
+el.classList.toggle("flip",card.flip||card.match);
+el.classList.toggle("matched",card.match);
+el.classList.toggle("bomb",card.type==="bomb" && card.flip);
+el.classList.toggle("rocket",card.type==="rocket" && card.flip);
+}
+
+function updateUI(){
+
+document.getElementById("blueScore").textContent=s1;
+document.getElementById("redScore").textContent=s2;
+
+const turnBox=document.getElementById("turnBox");
+
+if(turn===1){
+
+turnBox.className="turnBlue";
+turnBox.textContent="Turn: " + p1;
+
+document.getElementById("blueScoreBox").className="score blueTurn";
+document.getElementById("redScoreBox").className="score";
+
+}else{
+
+turnBox.className="turnRed";
+turnBox.textContent="Turn: " + p2;
+
+document.getElementById("blueScoreBox").className="score";
+document.getElementById("redScoreBox").className="score redTurn";
+}
+}
+
+function showWinner(){
+
+const win=s1>=goal?1:2;
+
+const trophy=document.getElementById("trophy");
+const text=document.getElementById("winnerText");
+
+if(win===1){
+
+trophy.style.background="#143f69";
+trophy.style.color="#8ec9ff";
+trophy.style.boxShadow="0 0 28px rgba(82,165,255,0.7)";
+trophy.textContent=P1_PROFILES[curP1].emoji;
+
+text.style.color="#8ec9ff";
+text.textContent=p1 + " WINS! 🏆";
+
+}else{
+
+trophy.style.background="#5d1d1d";
+trophy.style.color="#ff9191";
+trophy.style.boxShadow="0 0 28px rgba(255,105,105,0.7)";
+trophy.textContent=P2_PROFILES[curP2].emoji;
+
+text.style.color="#ff9191";
+text.textContent=p2 + " WINS! 🏆";
+}
+
+document.getElementById("f1").innerHTML=`${p1}<br>${s1}`;
+document.getElementById("f2").innerHTML=`${p2}<br>${s2}`;
+
+sfxWin();
+show("win");
+}
+
+document.getElementById("again").onclick=()=>{
+sfxStart();
+startGame();
+show("play");
+};
+
+const WP={
+space:{bg:"#020814",grad:"linear-gradient(160deg,#020814,#071230)"},
+nebula:{bg:"#100520",grad:"linear-gradient(160deg,#100520,#2a0845)"},
+mars:{bg:"#1a0800",grad:"linear-gradient(160deg,#1a0800,#3b1200)"},
+ocean:{bg:"#001520",grad:"linear-gradient(160deg,#001520,#00334d)"},
+void:{bg:"#000",grad:"linear-gradient(160deg,#000,#0a0a0a)"}
+};
+
+const TH={
+default:{back:"linear-gradient(135deg,#1d45ff,#12208d)",frontColor:"#2644d7"},
+gold:{back:"linear-gradient(135deg,#c8960c,#7a5900)",frontColor:"#7a5900"},
+rose:{back:"linear-gradient(135deg,#c2185b,#6a0f32)",frontColor:"#880e4f"},
+cyber:{back:"linear-gradient(135deg,#006064,#004d40)",frontColor:"#006064"}
+};
+
+const P1_PROFILES={
+gamer:{bg:"linear-gradient(135deg,#1a3a52,#0d1f2d)",emoji:"🎮"},
+champion:{bg:"linear-gradient(135deg,#4a3700,#2a1f00)",emoji:"🏆"},
+legend:{bg:"linear-gradient(135deg,#5a1a3a,#2a0a1a)",emoji:"🌟"},
+thunder:{bg:"linear-gradient(135deg,#5a4a00,#3a2a00)",emoji:"⚡"},
+king:{bg:"linear-gradient(135deg,#6a5a2a,#3a2a1a)",emoji:"👑"},
+phoenix:{bg:"linear-gradient(135deg,#6a1a1a,#3a0a0a)",emoji:"🔥"},
+diamond:{bg:"linear-gradient(135deg,#4a1a5a,#2a0a3a)",emoji:"💎"},
+garden:{bg:"linear-gradient(135deg,#5a2a4a,#3a1a2a)",emoji:"🌺"},
+blizzard:{bg:"linear-gradient(135deg,#1a3a5a,#0a1a3a)",emoji:"❄️"},
+cherry:{bg:"linear-gradient(135deg,#5a2a4a,#3a1a2a)",emoji:"🌸"}
+};
+
+const P2_PROFILES={
+gamer:{bg:"linear-gradient(135deg,#1a3a52,#0d1f2d)",emoji:"🎮"},
+champion:{bg:"linear-gradient(135deg,#4a3700,#2a1f00)",emoji:"🏆"},
+legend:{bg:"linear-gradient(135deg,#5a1a3a,#2a0a1a)",emoji:"🌟"},
+thunder:{bg:"linear-gradient(135deg,#5a4a00,#3a2a00)",emoji:"⚡"},
+king:{bg:"linear-gradient(135deg,#6a5a2a,#3a2a1a)",emoji:"👑"},
+phoenix:{bg:"linear-gradient(135deg,#6a1a1a,#3a0a0a)",emoji:"🔥"},
+diamond:{bg:"linear-gradient(135deg,#4a1a5a,#2a0a3a)",emoji:"💎"},
+garden:{bg:"linear-gradient(135deg,#5a2a4a,#3a1a2a)",emoji:"🌺"},
+blizzard:{bg:"linear-gradient(135deg,#1a3a5a,#0a1a3a)",emoji:"❄️"},
+cherry:{bg:"linear-gradient(135deg,#5a2a4a,#3a1a2a)",emoji:"🌸"}
+};
+
+let curWP="space";
+let curTH="default";
+let curP1="gamer";
+let curP2="gamer";
+
+// Apply default profiles on load so avatars show emoji instead of "P1"/"P2"
+applyP1();
+applyP2();
+
+document.querySelectorAll(".wpOpt").forEach(opt=>{
+opt.addEventListener("click",()=>{
+sfxSelect();
+document.querySelectorAll(".wpOpt").forEach(o=>o.classList.remove("chosen"));
+opt.classList.add("chosen");
+curWP=opt.dataset.wp;
+applyWP();
+});
+});
+
+document.querySelectorAll("[data-p1]").forEach(opt=>{
+opt.addEventListener("click",()=>{
+sfxSelect();
+document.querySelectorAll("[data-p1]").forEach(o=>o.classList.remove("chosen"));
+opt.classList.add("chosen");
+curP1=opt.dataset.p1;
+applyP1();
+});
+});
+
+document.querySelectorAll("[data-p2]").forEach(opt=>{
+opt.addEventListener("click",()=>{
+sfxSelect();
+document.querySelectorAll("[data-p2]").forEach(o=>o.classList.remove("chosen"));
+opt.classList.add("chosen");
+curP2=opt.dataset.p2;
+applyP2();
+});
+});
+
+document.querySelectorAll(".thOpt").forEach(opt=>{
+opt.addEventListener("click",()=>{
+sfxSelect();
+document.querySelectorAll(".thOpt").forEach(o=>o.classList.remove("chosen"));
+opt.classList.add("chosen");
+curTH=opt.dataset.th;
+applyTH();
+});
+});
+
+function applyWP(){
+const w=WP[curWP];
+document.body.style.background=w.bg;
+const gameEl=document.getElementById("game");
+gameEl.style.background=w.grad;
+}
+
+function applyP1(){
+const p=P1_PROFILES[curP1];
+const avatar=document.getElementById("p1Avatar");
+avatar.style.background=p.bg;
+avatar.textContent=p.emoji;
+}
+
+function applyP2(){
+const p=P2_PROFILES[curP2];
+const avatar=document.getElementById("p2Avatar");
+avatar.style.background=p.bg;
+avatar.textContent=p.emoji;
+}
+
+function applyTH(){
+const t=TH[curTH];
+const style=document.getElementById("dynStyle")||createDynStyle();
+style.textContent=`.back{background:${t.back} !important;} .front{color:${t.frontColor} !important;}`;
+}
+
+function createDynStyle(){
+const s=document.createElement("style");
+s.id="dynStyle";
+document.head.appendChild(s);
+return s;
+}
+
+// ═══════════════════════════════════════
+//         SOUND SYSTEM (Web Audio API)
+// ═══════════════════════════════════════
+let _ac = null;
+function ac() {
+  if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)();
+  if (_ac.state === 'suspended') _ac.resume();
+  return _ac;
+}
+
+// Generic tone helper
+function playTone(freq, type, dur, vol=0.18, when=0) {
+  try {
+    const a = ac(), o = a.createOscillator(), g = a.createGain();
+    o.connect(g); g.connect(a.destination);
+    o.type = type; o.frequency.value = freq;
+    const t = a.currentTime + when;
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t); o.stop(t + dur);
+  } catch(e) {}
+}
+
+function playNoise(dur, vol=0.15, type='bandpass', freq=800) {
+  try {
+    const a = ac();
+    const buf = a.createBuffer(1, a.sampleRate * dur, a.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = a.createBufferSource();
+    src.buffer = buf;
+    const filt = a.createBiquadFilter();
+    filt.type = type; filt.frequency.value = freq;
+    const g = a.createGain();
+    g.gain.setValueAtTime(vol, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
+    src.connect(filt); filt.connect(g); g.connect(a.destination);
+    src.start();
+  } catch(e) {}
+}
+
+// 1. Card flip click
+function sfxCardFlip() {
+  playTone(520, 'sine', 0.06, 0.55);
+  playTone(780, 'sine', 0.04, 0.30, 0.03);
+}
+
+// 2. Card match success
+function sfxMatch() {
+  [523, 659, 784, 1047].forEach((f, i) =>
+    setTimeout(() => playTone(f, 'sine', 0.22, 0.38), i * 70)
+  );
+}
+
+// 3. Card mismatch
+function sfxMismatch() {
+  playTone(300, 'sawtooth', 0.18, 0.30);
+  setTimeout(() => playTone(220, 'sawtooth', 0.18, 0.25), 100);
+}
+
+// 4. Bomb explosion 💣
+function sfxBomb() {
+  // Deep thud
+  playTone(60, 'sine', 0.6, 1.4);
+  playTone(45, 'sine', 0.8, 1.2, 0.05);
+  // White noise burst
+  playNoise(0.5, 1.4, 'lowpass', 600);
+  // Rumble
+  playTone(80, 'triangle', 0.4, 1.0, 0.1);
+  setTimeout(() => playNoise(0.3, 0.9, 'lowpass', 400), 200);
+}
+
+// 5. Rocket whoosh 🚀
+function sfxRocket() {
+  try {
+    const a = ac();
+    // Rising whistle
+    const o = a.createOscillator();
+    const g = a.createGain();
+    o.connect(g); g.connect(a.destination);
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(200, a.currentTime);
+    o.frequency.exponentialRampToValueAtTime(1800, a.currentTime + 0.6);
+    g.gain.setValueAtTime(0.0001, a.currentTime);
+    g.gain.linearRampToValueAtTime(1.2, a.currentTime + 0.1);
+    g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.8);
+    o.start(); o.stop(a.currentTime + 0.9);
+    // Whoosh noise
+    playNoise(0.7, 0.9, 'highpass', 1200);
+  } catch(e) {}
+}
+
+// 6. UI Button click (generic)
+function sfxBtn() {
+  try {
+    const a = ac();
+    const o1 = a.createOscillator(), g1 = a.createGain();
+    o1.connect(g1); g1.connect(a.destination);
+    o1.type = 'sine'; o1.frequency.setValueAtTime(380, a.currentTime);
+    o1.frequency.exponentialRampToValueAtTime(520, a.currentTime + 0.06);
+    g1.gain.setValueAtTime(0.0001, a.currentTime);
+    g1.gain.linearRampToValueAtTime(0.45, a.currentTime + 0.01);
+    g1.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.12);
+    o1.start(); o1.stop(a.currentTime + 0.12);
+    // Subtle click transient
+    playNoise(0.04, 0.18, 'bandpass', 900);
+  } catch(e) {}
+}
+
+// 7. Start game button
+function sfxStart() {
+  try {
+    const a = ac();
+    // Rising sweep
+    const o = a.createOscillator(), g = a.createGain();
+    o.connect(g); g.connect(a.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(260, a.currentTime);
+    o.frequency.exponentialRampToValueAtTime(660, a.currentTime + 0.18);
+    g.gain.setValueAtTime(0.0001, a.currentTime);
+    g.gain.linearRampToValueAtTime(0.5, a.currentTime + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.22);
+    o.start(); o.stop(a.currentTime + 0.22);
+    // Chord stabs
+    [330, 415, 523, 659].forEach((f, i) =>
+      setTimeout(() => {
+        playTone(f, 'sine', 0.14, 0.38);
+        if(i===3) playTone(f*2, 'sine', 0.10, 0.22);
+      }, 60 + i * 55)
+    );
+  } catch(e) {}
+}
+
+// 8. Win fanfare
+function sfxWin() {
+  [523,587,659,698,784,880,988,1047].forEach((f,i) =>
+    setTimeout(() => playTone(f, 'sine', 0.35, 0.4), i * 80)
+  );
+}
+
+// 9. Mode/Profile select
+function sfxSelect() {
+  try {
+    const a = ac();
+    // Crisp click body
+    const o = a.createOscillator(), g = a.createGain();
+    o.connect(g); g.connect(a.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(900, a.currentTime);
+    o.frequency.exponentialRampToValueAtTime(540, a.currentTime + 0.09);
+    g.gain.setValueAtTime(0.0001, a.currentTime);
+    g.gain.linearRampToValueAtTime(0.5, a.currentTime + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.11);
+    o.start(); o.stop(a.currentTime + 0.12);
+    // High sparkle
+    const o2 = a.createOscillator(), g2 = a.createGain();
+    o2.connect(g2); g2.connect(a.destination);
+    o2.type = 'sine'; o2.frequency.value = 1400;
+    g2.gain.setValueAtTime(0.22, a.currentTime + 0.01);
+    g2.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.08);
+    o2.start(a.currentTime + 0.01); o2.stop(a.currentTime + 0.09);
+    // Noise transient
+    playNoise(0.03, 0.12, 'highpass', 2000);
+  } catch(e) {}
+}
+
+// 10. Shuffle
+function sfxShuffle() {
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      playTone(200 + Math.random() * 400, 'triangle', 0.06, 0.25);
+      playNoise(0.05, 0.2, 'bandpass', 600 + Math.random()*400);
+    }, i * 60);
+  }
+}
+
+</script>
+
+</body>
+</html>
